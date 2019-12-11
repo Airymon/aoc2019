@@ -1,2 +1,3 @@
-# aoc2019
-Advent of Code 2019
+# Advent of Code 2019
+
+Solutions to daily challenges. Written in Python3.
