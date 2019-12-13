@@ -10,28 +10,30 @@ def chunks(lst, n):
         yield lst[i:i + n]
 
 class ArcadeCabinet():
-    def __init__(self, program, free_play=0):
+    def __init__(self, program, free_play=False, auto=False, display=True):
         if free_play:
             program = program[:]
             program[0] = 2
         self.computer = IntcodeComputer(program, [], "Arcade Cabinet")
-        self.display = dict()
+        self.gamestate = dict()
         self.ball , self.tile = None, None
+        self.auto = auto
+        self.display = display
 
     def draw_screen(self):
-        max_x = max(x for x,y in self.display.keys())
-        max_y = max(y for x,y in self.display.keys())
-        score = self.display[(-1,0)] if (-1,0) in self.display else 0
+        max_x = max(x for x,y in self.gamestate.keys())
+        max_y = max(y for x,y in self.gamestate.keys())
+        score = self.gamestate[(-1,0)] if (-1,0) in self.gamestate else 0
         printstr = "\tSCORE:\t %i\n" % score
         for y in range(max_y+1):
             for x in range(max_x+1):
-                printstr = printstr +"%s" % tiles[self.display[(x,y)]]
+                printstr = printstr +"%s" % tiles[self.gamestate[(x,y)]]
             printstr = printstr + "\n"
         sys.stdout.write(printstr)
 
     def parse_instruction(self, instruction):
         x, y, tile = instruction
-        self.display[(x,y)] = tile
+        self.gamestate[(x,y)] = tile
         if tile == 4:
             self.ball = x
         elif tile == 3:
@@ -53,24 +55,26 @@ class ArcadeCabinet():
         else:
             return 's'
 
+    def score_counter(self):
+        score = self.gamestate[(-1,0)] if (-1,0) in self.gamestate else 0
+        sys.stdout.write("\r")
+        sys.stdout.flush()
+        sys.stdout.write("Score: %i" % score)
+
     def run_game(self):
-        i_counter = 0
         while not self.computer.has_stopped():
-            time.sleep(0.07)
             output = self.computer.run_program()
             for instruction in chunks(output, 3):
                 self.parse_instruction(instruction)
-            self.draw_screen()
+            if self.display:
+                self.draw_screen()
+                time.sleep(0.07)
+            else:
+                self.score_counter()
             self.computer.input_l.clear()
-            key = self.self_play()
+            key = self.self_play() if self.auto else None
             self.joystick(key)
-            """
-            if i_counter % 100 == 0 and (-1,0) in self.display:
-                sys.stdout.write("\r")
-                sys.stdout.flush()
-                sys.stdout.write("Score: %i" % self.display[(-1,0)])
-            """
-        #print("")
+        sys.stdout.write('\n')
         self.draw_screen()
 
 
@@ -80,11 +84,12 @@ with open('input.txt') as f:
     data = f.readline()
     input_list = data.split(',')
 input_prog = list(map(int, input_list))
-wall_ball = ArcadeCabinet(input_prog)
-wall_ball.run_game()
-print("Silver: %i" % list(wall_ball.display.values()).count(2))
+breakout = ArcadeCabinet(input_prog, display=False)
+breakout.run_game()
+print("Silver: %i" % list(breakout.gamestate.values()).count(2))
 
 ### PART 2
 print("\n PART 2 START \n")
-wall_ball = ArcadeCabinet(input_prog, 1)
-wall_ball.run_game()
+breakout = ArcadeCabinet(input_prog, free_play=True, auto=True, display=True)
+breakout.run_game()
+print("\nGold: %i" % breakout.gamestate[(-1,0)])
