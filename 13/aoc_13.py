@@ -22,12 +22,12 @@ class ArcadeCabinet():
         max_x = max(x for x,y in self.display.keys())
         max_y = max(y for x,y in self.display.keys())
         score = self.display[(-1,0)] if (-1,0) in self.display else 0
-        sys.stdout.flush()
-        print("\tSCORE:\t %i" % score)
+        printstr = "\tSCORE:\t %i\n" % score
         for y in range(max_y+1):
             for x in range(max_x+1):
-                sys.stdout.write("%s" % tiles[self.display[(x,y)]])
-            sys.stdout.write("\n")
+                printstr = printstr +"%s" % tiles[self.display[(x,y)]]
+            printstr = printstr + "\n"
+        sys.stdout.write(printstr)
 
     def parse_instruction(self, instruction):
         x, y, tile = instruction
@@ -56,19 +56,21 @@ class ArcadeCabinet():
     def run_game(self):
         i_counter = 0
         while not self.computer.has_stopped():
+            time.sleep(0.07)
             output = self.computer.run_program()
             for instruction in chunks(output, 3):
                 self.parse_instruction(instruction)
-            #self.draw_screen()
-            #time.sleep(0.3)
+            self.draw_screen()
             self.computer.input_l.clear()
             key = self.self_play()
             self.joystick(key)
+            """
             if i_counter % 100 == 0 and (-1,0) in self.display:
                 sys.stdout.write("\r")
                 sys.stdout.flush()
                 sys.stdout.write("Score: %i" % self.display[(-1,0)])
-        print("")
+            """
+        #print("")
         self.draw_screen()
 
 
