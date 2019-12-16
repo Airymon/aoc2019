@@ -96,8 +96,8 @@ class RepairDroid():
                 elif self.areamap[position].type == FieldType.OXY:
                     full_map = full_map + "O"
             full_map = full_map + "\n"
+        full_map = full_map + "\n"
         print(full_map)
-        print("")
 
     def traverse_grid(self):
         directions = [Direction.EAST, Direction.SOUTH, Direction.NORTH, Direction.WEST]
@@ -107,7 +107,7 @@ class RepairDroid():
             i+=1
             next_move = steps.popleft()
             if self.visualize:
-                time.sleep(0.5)
+                time.sleep(0.2)
                 print("Step: %i" % i)
                 self.draw_map()
             if self.move_droid(next_move):
@@ -166,7 +166,7 @@ def simulate_oxygen(oxy_system, repairdroid, visualize=0):
         if visualize:
             print("Step: %i" % step)
             repairdroid.draw_map()
-            time.sleep(0.5)
+            time.sleep(0.2)
         oxygen, area_map = oxygen_spread(oxygen, area_map)
         step += 1
     repairdroid.draw_map()
