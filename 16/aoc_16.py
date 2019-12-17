@@ -40,11 +40,10 @@ print("Silver: %s" % get_fft_encoding([int(x) for x in full_input], pattern, 100
 
 def compute_phase_easy(sequence):
     new_sequence = list()
-    num = 0
+    sum = 0
     for pos in range(len(sequence)-1, -1, -1):
-        num += sequence[pos]
-        entry = num % 10
-        new_sequence.append(entry)
+        sum += sequence[pos]
+        new_sequence.append(sum % 10)
     return list(reversed(new_sequence))
 
 def get_fft_easy(sequence, num_phases):
