@@ -37,6 +37,7 @@ for i in range(50):
         new_line.append(result)
         space_map[new_pos] = result
     space_map_2.append(new_line)
+
 print("Silver: %i" % sum(space_map.values()))
 
 for j,map_line in enumerate(space_map_2):
@@ -51,25 +52,18 @@ for j,map_line in enumerate(space_map_2):
 print("\n PART 2 START \n")
 # absolute spaghetti code solution because I couldn't figure out a closed form.
 
-def check_if_fits(program):
-    # finds an upper bound upper left corner on a 100x100 square
+def get_upper_bound(program, size):
+    # finds an upper bound upper left corner on a sizexsize square
     x, y = 5, 6
-    steps = 0
-    while True:
-        check_drone = FlyingDrone(program)
-        if not check_drone.navigate_to_pos(Position(x,y)):
-            break
-        spacedrone_1 = FlyingDrone(program)
-        spacedrone_2 = FlyingDrone(program)
-        if spacedrone_1.navigate_to_pos(Position(x+99, y)) and spacedrone_2.navigate_to_pos(Position(x,y+99)):
-            # found a suitable spot
-            return x,y
-        x+= 10
-        y+= 11
-        if steps % 4 == 0 and steps != 0:
-            x+=5
-            y+=6
-        steps+=1
+    # rough pattern is 5,6 on mod 4 else 10,11
+    x = x + size*10 + size//4 * 5
+    y = y + size*11 + size//4 * 6
+    # quick check if we can fit at this position (should always work)
+    spacedrone_1 = FlyingDrone(program)
+    spacedrone_2 = FlyingDrone(program)
+    if not spacedrone_1.navigate_to_pos(Position(x+99, y)) and spacedrone_2.navigate_to_pos(Position(x,y+99)):
+        raise RuntimeError("Couldn't fit the spot, wrong pattern?")
+    return x,y
 
 def step_back_y(x, y, program):
     last_y = y
@@ -138,11 +132,12 @@ def backwards_fit(coords, program):
     x, y = coords # these are a close upper bound on our actual coordinates
     new_x, new_y = 0, 0
     # while there is still an update we havent reached the boundary
-    # trying to step back either alternatingly or together until we can't
+    # trying to step back diagonally until we no longer fit, then adjust on x and y axis
+    # alternatingly
     while True:
-        new_y = step_back_y(x, y, program)
-        new_x = step_back_x(x, new_y, program)
-        new_x, new_y = step_back_both(new_x, new_y, program)
+        new_x, new_y = step_back_both(x, y, program)
+        new_y = step_back_y(new_x, new_y, program)
+        new_x = step_back_x(new_x, new_y, program)
         if x == new_x and y == new_y:
             break
         else:
@@ -150,7 +145,7 @@ def backwards_fit(coords, program):
             y = new_y
     return new_x, new_y
 
-coords = check_if_fits(input_prog)
+coords = get_upper_bound(input_prog, 100)
 min_coords = backwards_fit(coords, input_prog)
 
 print("Gold: %i" % (min_coords[0]*10000 + min_coords[1]))
