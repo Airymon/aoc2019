@@ -155,9 +155,7 @@ def shortest_path_recursive(maze_graph, start_pos):
         else:
             no_teleport = False
         for neighbor in node.neighbors:
-            if layer > 20:
-                continue
-            elif node.label[-1] == 'U' and maze_graph[neighbor].label[-1] == 'I' and no_teleport:
+            if node.label[-1] == 'U' and maze_graph[neighbor].label[-1] == 'I' and no_teleport:
                 # we are on the outer layer and cant teleport outwards
                 continue
             elif node.label[-1] == 'I' and maze_graph[neighbor].label[-1] == 'U':
