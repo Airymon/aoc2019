@@ -37,6 +37,7 @@ def draw_maze(maze_list):
         print(''.join(layer))
 
 def label_portals_at(pos, char, maze_list):
+    # spaghetti logic to assign the correct portal label to a point
     height = len(maze_list)
     width = len(maze_list[0])
     if pos.y+1 < height and maze_list[(pos.y+1, pos.x)] in string.ascii_uppercase:
@@ -53,6 +54,9 @@ def label_portals_at(pos, char, maze_list):
         return pos, char
 
 def maze_to_map(maze_list):
+    # ditch the full map representation for a dictionary of positions and labels
+    # i added U and I labels to the signature of the teleporters to signal whether
+    # theyre on the inside or outside of the torus
     full_map = dict()
     height = len(maze_list)
     width = len(maze_list[0])
@@ -80,6 +84,7 @@ def maze_to_map(maze_list):
     return full_map
 
 def map_to_graph(maze_map):
+    # build a graph out of the sparse maze map, connecting teleporters
     maze_graph = dict()
     for position, label in maze_map.items():
         node = Node(position, label)
@@ -144,18 +149,14 @@ def shortest_path_recursive(maze_graph, start_pos):
     # do BFS counting steps to goal in n layers
     visited = set() # we keep track of the layer in the visited
     start_node = maze_graph[start_pos]
-    queue = deque([(start_node, 0, 0)])
+    queue = deque([(start_node, 0, 0)]) # start in layer 0 at distance 0
     while True:
         node, dist, layer = queue.popleft()
         visited.add((node.position, layer))
         if node.label == 'ZZ' and layer == 0:
             return dist
-        elif node.label[-1] == 'U' and layer == 0:
-            no_teleport = True
-        else:
-            no_teleport = False
         for neighbor in node.neighbors:
-            if node.label[-1] == 'U' and maze_graph[neighbor].label[-1] == 'I' and no_teleport:
+            if node.label[-1] == 'U' and maze_graph[neighbor].label[-1] == 'I' and layer == 0:
                 # we are on the outer layer and cant teleport outwards
                 continue
             elif node.label[-1] == 'I' and maze_graph[neighbor].label[-1] == 'U':
