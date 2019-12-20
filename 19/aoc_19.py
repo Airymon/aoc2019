@@ -55,7 +55,8 @@ print("\n PART 2 START \n")
 def get_upper_bound(program, size):
     # finds an upper bound upper left corner on a sizexsize square
     x, y = 5, 6
-    # rough pattern is 5,6 on mod 4 else 10,11
+    # rough pattern is 10,11 for a x+1/x+1 sized square with an extra +5/6 every 4 steps
+    # this actually gets us within single digit range from the actual solution
     x = x + size*10 + size//4 * 5
     y = y + size*11 + size//4 * 6
     # quick check if we can fit at this position (should always work)
