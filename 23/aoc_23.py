@@ -31,11 +31,11 @@ while run_network:
                 intcode_network[instruction[0]].add_prog_input(instruction[1:])
 
 ### PART 2
-
 class NAT():
     def __init__(self):
         self.x = None
         self.y = None
+        self.history = list()
 
     def add_prog_input(self, instruction):
         self.x = instruction[0]
@@ -47,8 +47,6 @@ for i in range(50):
     intcode_network[i] = computer
 intcode_network[255] = NAT()
 run_network = True
-
-nat_history = list()
 
 while run_network:
     all_idle = True
@@ -70,9 +68,9 @@ while run_network:
         print("NAT sends package to 0")
         print(NAT.x, NAT.y)
         intcode_network[0].add_prog_input([NAT.x, NAT.y])
-        if nat_history:
-            if nat_history[-1] == NAT.y:
+        if NAT.history:
+            if NAT.history[-1] == NAT.y:
                 run_network = False
                 print("Gold: %i" % NAT.y)
                 break
-        nat_history.append(NAT.y)
+        NAT.history.append(NAT.y)
